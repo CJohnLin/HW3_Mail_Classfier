@@ -48,3 +48,33 @@ def render_sidebar():
     # ============================
     # Dataset 資訊
     # ============================
+    st.sidebar.markdown("<div class='sb-subtitle'>📗 資料集資訊</div>", unsafe_allow_html=True)
+
+    DATA_PATH = "dataset/sms_final.csv"
+
+    if os.path.exists(DATA_PATH):
+        df = pd.read_csv(DATA_PATH)
+        st.sidebar.write(f"📊 筆數：{len(df)}")
+        st.sidebar.write(f"🏷 標籤：{df['label'].unique()}")
+    else:
+        st.sidebar.warning("⚠️ 找不到 dataset/sms_final.csv")
+
+    # ============================
+    # 自行訓練模型
+    # ============================
+    st.sidebar.markdown("<div class='sb-subtitle'>🧠 自行訓練模型</div>", unsafe_allow_html=True)
+    st.sidebar.write("可重新訓練 LogReg / NB / SVM 模型。")
+
+    if st.sidebar.button("進入模型訓練頁面"):
+        st.switch_page("train model")
+
+    # ============================
+    # About
+    # ============================
+    st.sidebar.markdown("<div class='sb-subtitle'>💡 About 系統</div>", unsafe_allow_html=True)
+    st.sidebar.markdown("""
+    - 垃圾簡訊偵測平台  
+    - 支援自訓練模型  
+    - 模型比較 / 效能報告  
+    - 文字雲 / 資料探索  
+    """)
