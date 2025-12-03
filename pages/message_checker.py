@@ -75,7 +75,7 @@ except Exception as e:
 # =========================================================
 # 載入 Dataset（for 隨機範例）
 # =========================================================
-DATA_PATH = os.path.join("Chapter03", "datasets", "sms_final.csv")
+DATA_PATH = os.path.join("datasets", "sms_final.csv")
 df_sample = None
 if os.path.exists(DATA_PATH):
     df_sample = pd.read_csv(DATA_PATH)
