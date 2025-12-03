@@ -6,18 +6,19 @@ def render_sidebar():
 
     st.sidebar.markdown("### 📌 功能選單")
 
-    # Streamlit page linking
+    # 👉 使用自訂中文連結（不使用英文 page_link）
     st.sidebar.page_link("app.py", label="🏠 首頁")
-    st.sidebar.page_link("pages/message_checker.py", label="🔍 單筆偵測")
-    st.sidebar.page_link("pages/train_model.py", label="🧠 訓練模型")
-    st.sidebar.page_link("pages/model_report.py", label="📈 模型報告")
-    st.sidebar.page_link("pages/compare_models.py", label="📊 模型比較")
-    st.sidebar.page_link("pages/wordcloud.py", label="🌥️ 文字雲")
-    st.sidebar.page_link("pages/data_inspector.py", label="🧹 資料探索")
+    st.sidebar.page_link("pages/_message_checker.py", label="🔍 單筆偵測")
+    st.sidebar.page_link("pages/_train_model.py", label="🧠 訓練模型")
+    st.sidebar.page_link("pages/_model_report.py", label="📈 模型報告")
+    st.sidebar.page_link("pages/_compare_models.py", label="📊 模型比較")
+    st.sidebar.page_link("pages/_wordcloud.py", label="🌥️ 文字雲")
+    st.sidebar.page_link("pages/_data_inspector.py", label="🧹 資料探索")
 
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 📘 模型資訊")
 
+    # ✨ 模型資訊
+    st.sidebar.markdown("### 📘 模型資訊")
     try:
         models = [f for f in os.listdir("models") if f.endswith(".joblib")]
         for m in models:
@@ -26,8 +27,9 @@ def render_sidebar():
         st.sidebar.write("⚠️ 找不到模型檔案")
 
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 📗 Dataset")
 
+    # ✨ 資料集資訊
+    st.sidebar.markdown("### 📗 Dataset")
     path = "dataset/sms_final.csv"
     if os.path.exists(path):
         try:
