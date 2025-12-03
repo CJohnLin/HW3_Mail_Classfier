@@ -8,8 +8,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-st.header('模型效能報告')
+# ===== CSS =====
+st.markdown("""
+<style>
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1E88E5;
+}
+.card {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    margin-bottom: 22px;
+}
+</style>
+""", unsafe_allow_html=True)
 
+# ===== 標題 =====
+st.markdown("<h1 class='page-title'>📊 模型效能報告</h1>", unsafe_allow_html=True)
+
+# ===== 模型 =====
 MODEL = os.path.join('models','spam_logreg_model.joblib')
 VEC = os.path.join('models','spam_tfidf_vectorizer.joblib')
 MAP = os.path.join('models','spam_label_mapping.json')
@@ -17,59 +38,52 @@ MAP = os.path.join('models','spam_label_mapping.json')
 try:
     model, vectorizer, label_map = load_resources(MODEL, VEC, MAP)
 except Exception as e:
-    st.error('模型未準備好：' + str(e))
+    st.error("❌ 模型載入失敗：" + str(e))
     st.stop()
 
-data_path = os.path.join('Chapter03','datasets','sms_spam_no_header.csv')
+# ===== 資料讀取 =====
+data_path = os.path.join("Chapter03","datasets","sms_spam_no_header.csv")
 
 if not os.path.exists(data_path):
-    st.info('資料集不存在')
-else:
-    df = pd.read_csv(data_path, header=None, names=['label','text'])
+    st.error("⚠️ 找不到資料集")
+    st.stop()
 
-    # --- 保證 label 有效 ---
-    df['label'] = df['label'].astype(str).str.strip().str.lower()
-    df = df[df['label'].isin(['ham','spam'])].copy()
+df = pd.read_csv(data_path, header=None, names=["label","text"])
+df["label"] = df["label"].astype(str).str.strip().str.lower()
 
-    # --- 保證 text 不為 NaN / 也不為空白 ---
-    df['text'] = df['text'].astype(str).fillna("").str.strip()
+# 僅保留 ham/spam
+df = df[df["label"].isin(["ham","spam"])].copy()
 
-    # 移除空白文本（空字串無法進 vectorizer）
-    df = df[df['text'] != ""].copy()
+# 清理 text
+df["text"] = df["text"].astype(str).fillna("").str.strip()
+df = df[df["text"] != ""].copy()
 
-    if df.empty:
-        st.error("資料集中文本內容皆為空，無法分析。")
-        st.stop()
+df["clean"] = df["text"].apply(normalize_message)
+df = df[df["clean"] != ""].copy()
 
-    # --- 清理文本 ---
-    df['clean'] = df['text'].apply(normalize_message)
+df["label_num"] = df["label"].map({"ham":0,"spam":1})
 
-    # 避免 clean 也變成空字串
-    df = df[df['clean'] != ""].copy()
+# ===== 卡片 1：分類報告 =====
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-    if df.empty:
-        st.error("文本預處理後無有效內容。")
-        st.stop()
+st.subheader("📄 分類報告")
 
-    df['label_num'] = df['label'].map({'ham':0,'spam':1})
+X = vectorizer.transform(df["clean"])
+preds = model.predict(X)
 
-    # --- 轉換 TF-IDF ---
-    try:
-        X = vectorizer.transform(df['clean'])
-    except Exception as e:
-        st.error("TF-IDF 轉換失敗：" + str(e))
-        st.stop()
+st.text(classification_report(df["label_num"], preds, target_names=["HAM","SPAM"]))
 
-    # --- 預測 ---
-    preds = model.predict(X)
+st.markdown("</div>", unsafe_allow_html=True)
 
-    # --- Report ---
-    st.subheader("📄 分類報告")
-    st.text(classification_report(df['label_num'], preds, target_names=['HAM','SPAM']))
+# ===== 卡片 2：混淆矩陣 =====
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-    # --- Confusion Matrix ---
-    st.subheader("🔵 混淆矩陣")
-    cm = confusion_matrix(df['label_num'], preds)
-    fig, ax = plt.subplots(figsize=(5,4))
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
-    st.pyplot(fig)
+st.subheader("🔵 混淆矩陣")
+
+cm = confusion_matrix(df["label_num"], preds)
+
+fig, ax = plt.subplots(figsize=(5,4))
+sns.heatmap(cm, annot=True, cmap="Blues", fmt="d", ax=ax)
+st.pyplot(fig)
+
+st.markdown("</div>", unsafe_allow_html=True)
