@@ -11,22 +11,41 @@ render_sidebar()
 
 st.title("📈 模型報告")
 
+MODEL = "models/custom_logreg.joblib"
+VEC = "models/custom_vectorizer.joblib"
+
+# 1. 載入模型
 try:
-    model = joblib.load("models/custom_logreg.joblib")
-    vec = joblib.load("models/custom_vectorizer.joblib")
+    model = joblib.load(MODEL)
+    vectorizer = joblib.load(VEC)
 except:
-    st.error("❌ 模型未訓練")
+    st.error("❌ 模型不存在，請先到『訓練模型』頁面訓練")
     st.stop()
 
-df = pd.read_csv("dataset/sms_final.csv")
-X = vec.transform(df["text"])
+# 2. 讀取資料集
+try:
+    df = pd.read_csv("dataset/sms_final.csv")
+except:
+    st.error("❌ 找不到 dataset/sms_final.csv")
+    st.stop()
+
+# 3. 準備資料
+X = vectorizer.transform(df["text"])
 y = df["label"]
+
 pred = model.predict(X)
 
-st.subheader("Classification Report")
-st.text(classification_report(y, pred))
+# 4. 確保 y 與 pred 的型別一致
+y = y.astype(str)
+pred = pred.astype(str)
 
+# 5. 顯示分類報告
+st.subheader("Classification Report")
+report = classification_report(y, pred, zero_division=0)
+st.text(report)
+
+# 6. 顯示混淆矩陣
 st.subheader("Confusion Matrix")
-plt.figure(figsize=(5,4))
-sns.heatmap(confusion_matrix(y, pred), annot=True, fmt="d")
+plt.figure(figsize=(5, 4))
+sns.heatmap(confusion_matrix(y, pred), annot=True, fmt="d", cmap="Blues")
 st.pyplot(plt)
