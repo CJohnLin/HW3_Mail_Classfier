@@ -1,65 +1,178 @@
 import streamlit as st
 import os
+import pandas as pd
+import random
 from src.text_processing import normalize_message
 from src.model_utils import load_resources, infer_single
 
-# ======= CSS：科技藍樣式 =======
-st.markdown("""
-<style>
+# =========================================================
+# 深色模式切換 (CSS)
+# =========================================================
+dark_mode = st.sidebar.checkbox("🌙 深色模式")
 
-.page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1E88E5;
-    margin-bottom: 0px;
+if dark_mode:
+    st.markdown("""
+    <style>
+    body { background-color: #1e1e1e; color: #E0E0E0; }
+    .page-title { color: #64B5F6 !important; }
+    .card { background: #2c2c2c !important; border: 1px solid #444 !important; }
+    textarea, input { background-color: #333 !important; color: white !important; }
+    </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1E88E5;
+    }
+    .card {
+        background: #ffffff;
+        padding: 22px;
+        border-radius: 14px;
+        border: 1px solid #e4e4e4;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+        margin-bottom: 22px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# =========================================================
+# 頁面標題
+# =========================================================
+st.markdown("<h1 class='page-title'>🔍 即時訊息檢測</h1>", unsafe_allow_html=True)
+st.write("提供單筆偵測、批次偵測、與隨機範例測試。")
+
+# =========================================================
+# 模型選擇器
+# =========================================================
+st.sidebar.header("⚙️ 模型設定")
+model_option = st.sidebar.selectbox(
+    "選擇分類模型：",
+    ["Logistic Regression", "Naive Bayes", "Linear SVM"]
+)
+
+MODEL_MAP = {
+    "Logistic Regression": "models/logreg.joblib",
+    "Naive Bayes": "models/nb.joblib",
+    "Linear SVM": "models/svm.joblib"
 }
 
-.card {
-    background: #ffffff;
-    padding: 22px;
-    border-radius: 14px;
-    border: 1px solid #e4e4e4;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
-    margin-bottom: 22px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ======= 標題 =======
-st.markdown("<h1 class='page-title'>🔍 即時訊息偵測</h1>", unsafe_allow_html=True)
-st.write("輸入任意簡訊，系統將使用機器學習模型判斷是否為垃圾訊息。")
-
-# ======= 模型載入 =======
-MODEL = os.path.join('models','spam_logreg_model.joblib')
-VEC = os.path.join('models','spam_tfidf_vectorizer.joblib')
-MAP = os.path.join('models','spam_label_mapping.json')
+VECTOR_FILE = "models/spam_tfidf_vectorizer.joblib"
+LABEL_MAP_FILE = "models/spam_label_mapping.json"
 
 try:
-    model, vectorizer, label_map = load_resources(MODEL, VEC, MAP)
+    model, vectorizer, label_map = load_resources(
+        MODEL_MAP[model_option], 
+        VECTOR_FILE, 
+        LABEL_MAP_FILE
+    )
 except Exception as e:
-    st.error("❌ 模型載入失敗：" + str(e))
+    st.error(f"❌ 模型或向量器載入失敗：{str(e)}")
     st.stop()
 
-# ======= UI 卡片 =======
-st.markdown("<div class='card'>", unsafe_allow_html=True)
+# =========================================================
+# 載入 Dataset（for 隨機範例）
+# =========================================================
+DATA_PATH = os.path.join("Chapter03", "datasets", "sms_spam_no_header.csv")
+df_sample = None
+if os.path.exists(DATA_PATH):
+    df_sample = pd.read_csv(DATA_PATH, header=None, names=["label", "text"])
 
-msg = st.text_area("✏️ 輸入簡訊內容", height=140, placeholder="例如：Congratulations! You have won a prize…")
+# =========================================================
+# Tabs：單筆偵測 / 批次偵測 / 隨機範例
+# =========================================================
+tab1, tab2, tab3 = st.tabs([
+    "📝 單筆偵測",
+    "📂 批次 CSV",
+    "🎲 隨機範例"
+])
 
-if st.button("🚀 立即分析", use_container_width=True):
-    if not msg.strip():
-        st.warning("⚠️ 請輸入訊息內容！")
-    else:
-        pred, prob = infer_single(model, vectorizer, msg, normalize_message)
+# =========================================================
+# 📝 Tab1：單筆偵測
+# =========================================================
+with tab1:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.subheader("📝 單筆訊息偵測")
 
-        label = label_map.get(str(pred), "spam" if pred == 1 else "ham")
+    user_input = st.text_area("輸入簡訊內容：", height=140)
 
-        if label == "spam":
-            st.error("🔴 **偵測結果：SPAM（垃圾簡訊）**")
+    if st.button("🚀 立即分析", key="single_predict"):
+        if not user_input.strip():
+            st.warning("⚠️ 請輸入訊息內容！")
         else:
-            st.success("🟢 **偵測結果：HAM（正常簡訊）**")
+            pred, prob = infer_single(model, vectorizer, user_input, normalize_message)
+            result = label_map.get(str(pred), "spam" if pred == 1 else "ham")
 
-        if prob is not None:
-            st.info(f"📊 垃圾訊息機率：**{prob:.4f}**")
+            if result == "spam":
+                st.error("🔴 **判定：垃圾簡訊（SPAM）**")
+            else:
+                st.success("🟢 **判定：正常簡訊（HAM）**")
 
-st.markdown("</div>", unsafe_allow_html=True)
+            if prob is not None:
+                st.info(f"📊 垃圾訊息機率：**{prob:.4f}**")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# =========================================================
+# 📂 Tab2：批次偵測
+# =========================================================
+with tab2:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.subheader("📂 批次預測（上傳 CSV）")
+    uploaded = st.file_uploader("上傳 CSV（需包含 text 欄位）", type=["csv"])
+
+    if uploaded:
+        df = pd.read_csv(uploaded)
+
+        if "text" not in df.columns:
+            st.error("❌ CSV 必須包含 `text` 欄位！")
+        else:
+            df["clean"] = df["text"].astype(str).apply(normalize_message)
+            X = vectorizer.transform(df["clean"])
+            df["pred"] = model.predict(X)
+
+            if hasattr(model, "predict_proba"):
+                df["spam_prob"] = model.predict_proba(X)[:, 1]
+
+            st.success("🎉 預測完成！")
+            st.dataframe(df)
+
+            st.download_button(
+                "⬇️ 下載結果 CSV",
+                df.to_csv(index=False).encode("utf-8-sig"),
+                "batch_predictions.csv"
+            )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# =========================================================
+# 🎲 Tab3：隨機範例
+# =========================================================
+with tab3:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.subheader("🎲 從 Dataset 抽一筆測試")
+
+    if df_sample is not None:
+        if st.button("🎯 抽取隨機訊息"):
+            row = df_sample.sample(1).iloc[0]
+            st.write(f"📩 **原文訊息：** `{row['text']}`")
+            st.write(f"📌 **原始標籤：** `{row['label']}`")
+
+            pred, prob = infer_single(model, vectorizer, row["text"], normalize_message)
+
+            result = label_map.get(str(pred), "spam" if pred == 1 else "ham")
+
+            st.write("---")
+
+            if result == "spam":
+                st.error("🔴 **模型判定：垃圾簡訊（SPAM）**")
+            else:
+                st.success("🟢 **模型判定：正常簡訊（HAM）**")
+
+            if prob is not None:
+                st.info(f"📊 垃圾機率：**{prob:.4f}**")
+    else:
+        st.warning("⚠️ 找不到 dataset，請確認資料是否存在。")
+
+    st.markdown("</div>", unsafe_allow_html=True)
