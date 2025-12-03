@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title='🧠 訓練模型', page_icon='🧠')
+import streamlit as st
 import pandas as pd
 import joblib
 import os
@@ -14,7 +16,6 @@ from sklearn.metrics import classification_report
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="訓練模型", page_icon="🧠")
 
 # =============================
 # 標題與說明

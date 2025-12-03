@@ -1,8 +1,9 @@
 import streamlit as st
+st.set_page_config(page_title='🧹 資料探索', page_icon='🧹')
+import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(page_title="🧹 資料探索", page_icon="🧹")
 st.markdown("""
 <style>
 .page-title {

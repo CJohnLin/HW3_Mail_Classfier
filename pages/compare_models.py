@@ -1,11 +1,12 @@
 import streamlit as st
+st.set_page_config(page_title='📊 模型比較', page_icon='📊')
+import streamlit as st
 import pandas as pd
 import joblib
 import os
 from sklearn.metrics import classification_report
 from src.text_processing import normalize_message
 
-st.set_page_config(page_title="📊 模型比較", page_icon="📊")
 
 st.header("📊 三模型效能比較")
 

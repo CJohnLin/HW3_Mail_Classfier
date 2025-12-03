@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title='📈 模型報告', page_icon='📈')
+import streamlit as st
 import pandas as pd
 import os
 from src.text_processing import normalize_message

@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title='🔍 單筆偵測', page_icon='🔍')
+import streamlit as st
 import os
 import pandas as pd
 import random

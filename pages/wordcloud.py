@@ -1,10 +1,11 @@
 import streamlit as st
+st.set_page_config(page_title='🌥️ 文字雲', page_icon='🌥️')
+import streamlit as st
 import pandas as pd
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import os
 
-st.set_page_config(page_title="文字雲", page_icon="🌥️")
 
 st.header("🌥️ Dataset 文字雲")
 
