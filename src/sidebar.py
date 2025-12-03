@@ -1,80 +1,47 @@
+
 import streamlit as st
 import pandas as pd
-import os
+import os, inspect
 
 def render_sidebar():
-
     st.sidebar.markdown("""
     <style>
-    .sb-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1E88E5;
-        margin-bottom: 10px;
-    }
-    .sb-card {
-        background: #FFFFFF10;
-        padding: 12px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        border: 1px solid #ffffff22;
-    }
-    .sb-subtitle {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-top: 15px;
-    }
+    .sb-title { font-size:1.2rem; font-weight:800; color:#0EA5E9; margin-bottom:6px; }
+    .nav-item { padding:8px 10px; border-radius:8px; margin-bottom:6px; }
+    .nav-item:hover{ background:linear-gradient(90deg,#60a5fa,#7c3aed); color:white; transform:translateX(4px); }
+    .sb-foot{ font-size:0.9rem; color:rgba(0,0,0,0.6); margin-top:12px; }
     </style>
     """, unsafe_allow_html=True)
 
-    # 導覽選單（標題）
-    st.sidebar.markdown("<div class='sb-title'>📌 導覽選單</div>", unsafe_allow_html=True)
-    st.sidebar.write("請從上方選擇功能頁面。")
+    st.sidebar.markdown("<div class='sb-title'>📌 功能選單</div>", unsafe_allow_html=True)
+    # navigation links (Streamlit pages show automatically, keep simple)
+    st.sidebar.markdown("- 🏠 首頁\n- 🔍 單筆偵測\n- 🧠 訓練模型\n- 📈 模型報告\n- 📊 模型比較\n- 🌥️ 文字雲\n- 🧹 資料探索", unsafe_allow_html=True)
 
-    # ============================
-    # 模型資訊
-    # ============================
-    st.sidebar.markdown("<div class='sb-subtitle'>📘 模型資訊</div>", unsafe_allow_html=True)
-
-    model_files = [f for f in os.listdir("models") if f.endswith(".joblib")]
-
-    if len(model_files) > 0:
-        with st.sidebar.expander("📦 已載入模型", expanded=True):
-            for f in model_files:
-                st.write(f"📄 `{f}`")
+    # model files
+    st.sidebar.markdown("<hr/>", unsafe_allow_html=True)
+    st.sidebar.markdown("<div style='font-weight:700'>📘 模型</div>", unsafe_allow_html=True)
+    try:
+        files = [f for f in os.listdir('models') if f.endswith('.joblib')]
+    except Exception:
+        files = []
+    if files:
+        for f in files:
+            st.sidebar.markdown(f"- `{f}`")
     else:
-        st.sidebar.warning("⚠️ 找不到模型檔案")
+        st.sidebar.warning('找不到模型檔案')
 
-    # ============================
-    # Dataset 資訊
-    # ============================
-    st.sidebar.markdown("<div class='sb-subtitle'>📗 資料集資訊</div>", unsafe_allow_html=True)
-
-    DATA_PATH = "dataset/sms_final.csv"
-
+    st.sidebar.markdown("<hr/>", unsafe_allow_html=True)
+    # dataset info
+    DATA_PATH='dataset/sms_final.csv'
+    st.sidebar.markdown("<div style='font-weight:700'>📗 Dataset</div>", unsafe_allow_html=True)
     if os.path.exists(DATA_PATH):
-        df = pd.read_csv(DATA_PATH)
-        st.sidebar.write(f"📊 筆數：{len(df)}")
-        st.sidebar.write(f"🏷 標籤：{df['label'].unique()}")
+        try:
+            df = pd.read_csv(DATA_PATH)
+            st.sidebar.write(f"筆數：{len(df)}")
+            st.sidebar.write(f"標籤：{df['label'].unique()}")
+        except Exception as e:
+            st.sidebar.write('無法讀取 dataset')
     else:
-        st.sidebar.warning("⚠️ 找不到 dataset/sms_final.csv")
+        st.sidebar.warning('找不到 dataset/sms_final.csv')
 
-    # ============================
-    # 自行訓練模型
-    # ============================
-    st.sidebar.markdown("<div class='sb-subtitle'>🧠 自行訓練模型</div>", unsafe_allow_html=True)
-    st.sidebar.write("可重新訓練 LogReg / NB / SVM 模型。")
-
-    if st.sidebar.button("進入模型訓練頁面"):
-        st.switch_page("train model")
-
-    # ============================
-    # About
-    # ============================
-    st.sidebar.markdown("<div class='sb-subtitle'>💡 About 系統</div>", unsafe_allow_html=True)
-    st.sidebar.markdown("""
-    - 垃圾簡訊偵測平台  
-    - 支援自訓練模型  
-    - 模型比較 / 效能報告  
-    - 文字雲 / 資料探索  
-    """)
+    st.sidebar.markdown("<div class='sb-foot'>Made with ❤ by you • 進階 UI 版</div>", unsafe_allow_html=True)
