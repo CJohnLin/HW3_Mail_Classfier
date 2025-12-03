@@ -10,9 +10,9 @@ import seaborn as sns
 st.header("📊 模型效能報告")
 
 # ========== 載入模型與向量器 ==========
-MODEL = os.path.join("models", "spam_logreg_model.joblib")
-VEC = os.path.join("models", "spam_tfidf_vectorizer.joblib")
-MAP = os.path.join("models", "spam_label_mapping.json")
+MODEL = os.path.join('models','spam_logreg_model.joblib')
+VEC = os.path.join('models','spam_tfidf_vectorizer.joblib')
+MAP = os.path.join('models','spam_label_mapping.json')
 
 try:
     model, vectorizer, label_map = load_resources(MODEL, VEC, MAP)
