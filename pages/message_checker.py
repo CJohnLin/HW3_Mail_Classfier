@@ -41,8 +41,8 @@ else:
 # =========================================================
 # 頁面標題
 # =========================================================
-st.markdown("<h1 class='page-title'>🔍 即時訊息檢測</h1>", unsafe_allow_html=True)
-st.write("提供單筆偵測、批次偵測、與隨機範例測試。")
+st.markdown("<h1 class='page-title'>🔍 即時訊息檢測（自訓練模型）</h1>", unsafe_allow_html=True)
+st.write("使用你自行訓練的 LogReg / NB / SVM 模型進行垃圾簡訊分類。")
 
 # =========================================================
 # 模型選擇器
@@ -54,18 +54,18 @@ model_option = st.sidebar.selectbox(
 )
 
 MODEL_MAP = {
-    "Logistic Regression": "models/logreg.joblib",
-    "Naive Bayes": "models/nb.joblib",
-    "Linear SVM": "models/svm.joblib"
+    "Logistic Regression": "models/custom_logreg.joblib",
+    "Naive Bayes": "models/custom_nb.joblib",
+    "Linear SVM": "models/custom_svm.joblib"
 }
 
-VECTOR_FILE = "models/spam_tfidf_vectorizer.joblib"
-LABEL_MAP_FILE = "models/spam_label_mapping.json"
+VECTOR_FILE = "models/custom_vectorizer.joblib"
+LABEL_MAP_FILE = "models/custom_label_map.json"
 
 try:
     model, vectorizer, label_map = load_resources(
-        MODEL_MAP[model_option], 
-        VECTOR_FILE, 
+        MODEL_MAP[model_option],
+        VECTOR_FILE,
         LABEL_MAP_FILE
     )
 except Exception as e:
@@ -75,13 +75,13 @@ except Exception as e:
 # =========================================================
 # 載入 Dataset（for 隨機範例）
 # =========================================================
-DATA_PATH = os.path.join("Chapter03", "datasets", "sms_spam_no_header.csv")
+DATA_PATH = os.path.join("Chapter03", "datasets", "sms_final.csv")
 df_sample = None
 if os.path.exists(DATA_PATH):
-    df_sample = pd.read_csv(DATA_PATH, header=None, names=["label", "text"])
+    df_sample = pd.read_csv(DATA_PATH)
 
 # =========================================================
-# Tabs：單筆偵測 / 批次偵測 / 隨機範例
+# Tabs
 # =========================================================
 tab1, tab2, tab3 = st.tabs([
     "📝 單筆偵測",
@@ -125,7 +125,6 @@ with tab2:
 
     if uploaded:
         df = pd.read_csv(uploaded)
-
         if "text" not in df.columns:
             st.error("❌ CSV 必須包含 `text` 欄位！")
         else:
@@ -139,11 +138,6 @@ with tab2:
             st.success("🎉 預測完成！")
             st.dataframe(df)
 
-            st.download_button(
-                "⬇️ 下載結果 CSV",
-                df.to_csv(index=False).encode("utf-8-sig"),
-                "batch_predictions.csv"
-            )
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================================================
@@ -153,18 +147,16 @@ with tab3:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("🎲 從 Dataset 抽一筆測試")
 
-    if df_sample is not None:
+    if df_sample is not None and len(df_sample) > 0:
         if st.button("🎯 抽取隨機訊息"):
             row = df_sample.sample(1).iloc[0]
-            st.write(f"📩 **原文訊息：** `{row['text']}`")
-            st.write(f"📌 **原始標籤：** `{row['label']}`")
+            st.write(f"📩 **訊息：** `{row['text']}`")
+            st.write(f"📌 **真實標籤：** `{row['label']}`")
 
             pred, prob = infer_single(model, vectorizer, row["text"], normalize_message)
-
             result = label_map.get(str(pred), "spam" if pred == 1 else "ham")
 
             st.write("---")
-
             if result == "spam":
                 st.error("🔴 **模型判定：垃圾簡訊（SPAM）**")
             else:
@@ -173,6 +165,6 @@ with tab3:
             if prob is not None:
                 st.info(f"📊 垃圾機率：**{prob:.4f}**")
     else:
-        st.warning("⚠️ 找不到 dataset，請確認資料是否存在。")
+        st.warning("⚠️ 找不到 dataset（sms_final.csv）")
 
     st.markdown("</div>", unsafe_allow_html=True)
