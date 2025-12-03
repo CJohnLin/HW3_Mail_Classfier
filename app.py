@@ -1,92 +1,84 @@
 import streamlit as st
+import os
+import pandas as pd
 
-# ========= 基本設定 =========
 st.set_page_config(
-    page_title="垃圾簡訊分類系統",
+    page_title="垃圾簡訊偵測系統",
     page_icon="📨",
-    layout="centered"
+    layout="wide"
 )
 
-# ========= 自訂 CSS（高質感 UI） =========
-st.markdown("""
+# -------------------------------
+# Sidebar 裝飾 + 內容
+# -------------------------------
+st.sidebar.markdown("""
 <style>
-
-body {
-    font-family: 'Noto Sans TC', sans-serif;
-}
-
-/* 主標題 */
-.main-title {
-    font-size: 2.4rem;
+.sidebar-title {
+    font-size: 1.3rem;
     font-weight: 700;
-    text-align: center;
     color: #1E88E5;
-    margin-top: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 10px;
 }
-
-/* 副標題 */
-.subtitle {
-    text-align: center;
-    font-size: 1.05rem;
-    color: #555;
-    margin-top: -5px;
-    margin-bottom: 25px;
+.info-card {
+    background: #FFFFFF10;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ffffff22;
 }
-
-/* 卡片 */
-.card {
-    background: #ffffff;
-    padding: 22px;
-    border-radius: 14px;
-    border: 1px solid #e4e4e4;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
-    margin-bottom: 22px;
-}
-
-/* Sidebar 美化 */
-section[data-testid="stSidebar"] {
-    background-color: #F5F7FA;
-    padding-top: 20px;
-}
-
-/* 分隔線 */
-hr {
-    border: none;
-    height: 1px;
-    background-color: #e0e0e0;
-    margin: 18px 0;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
-# ========= Sidebar =========
-with st.sidebar:
-    st.title("📌 導覽選單")
-    st.write("請從下方選擇功能頁面")
+# Sidebar 標題
+st.sidebar.markdown("<div class='sidebar-title'>📌 導覽選單</div>", unsafe_allow_html=True)
+st.sidebar.write("請從下方選擇功能頁面：" )
 
-# ========= 主內容 =========
-st.markdown("<h1 class='main-title'>垃圾簡訊偵測系統</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>多頁式應用｜偵測、分析、視覺化，一次搞定</p>", unsafe_allow_html=True)
+# -------------------------------
+# Model 資訊區塊
+# -------------------------------
+st.sidebar.markdown("### 📘 模型資訊")
 
-st.markdown("<div class='card'>", unsafe_allow_html=True)
+model_files = [f for f in os.listdir("models") if f.endswith(".joblib")]
 
-st.write("""
-本系統包含以下功能頁面：
+if len(model_files) > 0:
+    st.sidebar.markdown("<div class='info-card'>", unsafe_allow_html=True)
+    st.sidebar.write("已載入模型：")
+    for f in model_files:
+        st.sidebar.write(f"📄 `{f}`")
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
+else:
+    st.sidebar.warning("⚠️ 沒有可用的模型檔案")
 
-### 🔍 即時訊息檢測  
-輸入任意訊息，使用 TF-IDF + ML 模型即時判定是否為垃圾簡訊。
+# -------------------------------
+# Dataset 資訊
+# -------------------------------
+st.sidebar.markdown("### 📗 資料集資訊")
 
-### 📊 模型效能報告  
-可視化顯示模型效能、分類報告與混淆矩陣。
+if os.path.exists("dataset/sms_final.csv"):
+    df_info = pd.read_csv("dataset/sms_final.csv")
+    st.sidebar.markdown("<div class='info-card'>", unsafe_allow_html=True)
+    st.sidebar.write(f"📊 筆數：{len(df_info)}")
+    st.sidebar.write(f"🔤 標籤：{df_info['label'].unique()}")
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
+else:
+    st.sidebar.warning("⚠️ 找不到 dataset/sms_final.csv")
 
-### 📁 資料集檢視  
-查看資料分布、標籤比例與文字內容。
+# -------------------------------
+# 模型訓練入口按鈕
+# -------------------------------
+st.sidebar.markdown("### 🧠 自行訓練模型")
+st.sidebar.write("您可以上傳自己的 dataset 並重新訓練模型。")
 
----
+if st.sidebar.button("進入模型訓練頁面"):
+    st.switch_page("pages/train_model.py")
 
-請使用左側的導覽選單切換頁面。
+# -------------------------------
+# About
+# -------------------------------
+st.sidebar.markdown("### 💡 About 系統")
+st.sidebar.markdown("""
+- 📬 垃圾簡訊偵測系統  
+- 🔧 支援自訓練模型  
+- 🧪 支援 3 種分類器：LogReg / NB / SVM  
+- 🎨 科技藍 UI  
 """)
-
-st.markdown("</div>", unsafe_allow_html=True)
