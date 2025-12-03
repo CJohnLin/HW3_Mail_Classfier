@@ -2,20 +2,43 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.header('資料檢視')
+st.markdown("""
+<style>
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1E88E5;
+}
+.card {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    margin-bottom: 22px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-data_path = os.path.join('Chapter03','datasets','sms_spam_no_header.csv')
+st.markdown("<h1 class='page-title'>📁 資料集檢視</h1>", unsafe_allow_html=True)
+
+data_path = os.path.join("Chapter03","datasets","sms_spam_no_header.csv")
 
 if not os.path.exists(data_path):
-    st.info('資料集不存在：請確認檔案位置 Chapter03/datasets/sms_spam_no_header.csv')
-else:
-    df = pd.read_csv(data_path, header=None, names=['label','text'])
+    st.error("⚠️ 找不到資料集")
+    st.stop()
 
-    # 基本清理
-    df['label'] = df['label'].astype(str).str.strip().str.lower()
+df = pd.read_csv(data_path, header=None, names=["label","text"])
+df["label"] = df["label"].astype(str).str.strip().str.lower()
 
-    st.subheader("📌 前 10 筆資料")
-    st.dataframe(df.head(10))
+# ===== 卡片：資料預覽 =====
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.subheader("📌 前 10 筆資料")
+st.dataframe(df.head(10))
+st.markdown("</div>", unsafe_allow_html=True)
 
-    st.subheader("📊 標籤分布")
-    st.bar_chart(df['label'].value_counts())
+# ===== 卡片：標籤分布 =====
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.subheader("📊 標籤統計")
+st.bar_chart(df["label"].value_counts())
+st.markdown("</div>", unsafe_allow_html=True)
