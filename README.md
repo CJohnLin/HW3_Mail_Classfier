@@ -1,12 +1,61 @@
+# 📩 垃圾簡訊分類系統 (HW3)
 
-# 作業三 — 垃圾簡訊偵測 (Rewritten Edition)
+本專案完成 Email Spam Classification ML Pipeline，包含：
 
-此為你作業的「重寫版本」，保留原始功能（多頁式 Streamlit、使用向量器+模型、評估視覺化），
-但**全部程式碼與命名均重新設計**以避免高相似度比對。功能等同於作業要求：資料前處理、特徵、三種模型（若需）、評估、Streamlit 多頁 UI。
+- TF-IDF 特徵工程
+- 三模型訓練（LogReg / Naive Bayes / SVM）
+- Streamlit Web Demo（即時偵測 / 隨機測試）
+- 模型比較與視覺化（Confusion Matrix / classification report）
+- OpenSpec Workflow 文件
 
-## 使用說明
-1. 把整個資料夾上傳到你的 GitHub repo（覆蓋）
-2. 確認 models/ 下有 `spam_logreg_model.joblib` 與 `spam_tfidf_vectorizer.joblib`（若沒有，預設占位已提供）
-3. Streamlit Cloud Main file 請設定成： `app.py`
-4. Deploy
+---
+
+## 📦 專案架構
+
+```
+app.py
+src/
+    sidebar.py
+pages/
+    _message_checker.py
+    _train_model.py
+    _model_report.py
+    _compare_models.py
+    _wordcloud.py
+    _data_inspector.py
+dataset/
+    sms_final.csv
+models/
+notebooks/
+    train_models.ipynb
+openspec/
+    project.md
+    AGENTS.md
+requirements.txt
+```
+
+---
+
+## 🧪 訓練 Notebook
+訓練流程示範於：
+
+```
+notebooks/train_models.ipynb
+```
+
+---
+
+## 📘 Streamlit Demo
+請將雲端連結放在此：
+
+👉 Demo URL：
+
+---
+
+## 🧩 Requirements
+請見：
+
+```
+requirements.txt
+```
 
