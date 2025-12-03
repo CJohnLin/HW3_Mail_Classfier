@@ -1,84 +1,100 @@
 import streamlit as st
-import os
-import pandas as pd
+from src.sidebar import render_sidebar
 
+# ==========================================
+# 基本設定
+# ==========================================
 st.set_page_config(
     page_title="垃圾簡訊偵測系統",
     page_icon="📨",
     layout="wide"
 )
 
-# -------------------------------
-# Sidebar 裝飾 + 內容
-# -------------------------------
-st.sidebar.markdown("""
+# ==========================================
+# 全局 Sidebar（所有頁面共享）
+# ==========================================
+render_sidebar()
+
+# ==========================================
+# 首頁內容（Landing Page）
+# ==========================================
+st.markdown("""
 <style>
-.sidebar-title {
-    font-size: 1.3rem;
-    font-weight: 700;
+.home-title {
+    font-size: 2.4rem;
+    font-weight: 800;
     color: #1E88E5;
-    margin-bottom: 10px;
+    padding-bottom: 8px;
 }
-.info-card {
-    background: #FFFFFF10;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ffffff22;
+.home-subtitle {
+    font-size: 1.2rem;
+    color: #455A64;
+}
+.feature-box {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    margin-bottom: 25px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar 標題
-st.sidebar.markdown("<div class='sidebar-title'>📌 導覽選單</div>", unsafe_allow_html=True)
-st.sidebar.write("請從下方選擇功能頁面：" )
+st.markdown("<div class='home-title'>📨 垃圾簡訊偵測系統</div>", unsafe_allow_html=True)
+st.markdown("<div class='home-subtitle'>使用機器學習模型進行垃圾郵件分類 · 完整資料探索 · 支援自動訓練</div>", unsafe_allow_html=True)
+st.write("---")
 
-# -------------------------------
-# Model 資訊區塊
-# -------------------------------
-st.sidebar.markdown("### 📘 模型資訊")
+# ==========================================
+# 功能介紹
+# ==========================================
+st.subheader("📌 系統功能")
 
-model_files = [f for f in os.listdir("models") if f.endswith(".joblib")]
+col1, col2 = st.columns(2)
 
-if len(model_files) > 0:
-    st.sidebar.markdown("<div class='info-card'>", unsafe_allow_html=True)
-    st.sidebar.write("已載入模型：")
-    for f in model_files:
-        st.sidebar.write(f"📄 `{f}`")
-    st.sidebar.markdown("</div>", unsafe_allow_html=True)
-else:
-    st.sidebar.warning("⚠️ 沒有可用的模型檔案")
+with col1:
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>🔍 單筆訊息偵測</h4>
+    使用訓練模型即時判定訊息是否為垃圾簡訊 (SPAM)。
+    </div>
+    """, unsafe_allow_html=True)
 
-# -------------------------------
-# Dataset 資訊
-# -------------------------------
-st.sidebar.markdown("### 📗 資料集資訊")
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>🧹 資料探索 (Data Inspector)</h4>
+    觀察 dataset 的基本統計資訊、類別分佈。
+    </div>
+    """, unsafe_allow_html=True)
 
-if os.path.exists("dataset/sms_final.csv"):
-    df_info = pd.read_csv("dataset/sms_final.csv")
-    st.sidebar.markdown("<div class='info-card'>", unsafe_allow_html=True)
-    st.sidebar.write(f"📊 筆數：{len(df_info)}")
-    st.sidebar.write(f"🔤 標籤：{df_info['label'].unique()}")
-    st.sidebar.markdown("</div>", unsafe_allow_html=True)
-else:
-    st.sidebar.warning("⚠️ 找不到 dataset/sms_final.csv")
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>🌥️ 文字雲 (WordCloud)</h4>
+    可視化常出現字詞，快速理解訊息內容特性。
+    </div>
+    """, unsafe_allow_html=True)
 
-# -------------------------------
-# 模型訓練入口按鈕
-# -------------------------------
-st.sidebar.markdown("### 🧠 自行訓練模型")
-st.sidebar.write("您可以上傳自己的 dataset 並重新訓練模型。")
+with col2:
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>📊 模型效能報告</h4>
+    查看分類報告、混淆矩陣與各項模型評估指標。
+    </div>
+    """, unsafe_allow_html=True)
 
-if st.sidebar.button("進入模型訓練頁面"):
-    st.switch_page("pages/train_model.py")
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>📈 模型比較 (Compare Models)</h4>
+    查看 LogReg / NB / SVM 三模型的效能比較。
+    </div>
+    """, unsafe_allow_html=True)
 
-# -------------------------------
-# About
-# -------------------------------
-st.sidebar.markdown("### 💡 About 系統")
-st.sidebar.markdown("""
-- 📬 垃圾簡訊偵測系統  
-- 🔧 支援自訓練模型  
-- 🧪 支援 3 種分類器：LogReg / NB / SVM  
-- 🎨 科技藍 UI  
-""")
+    st.markdown("""
+    <div class='feature-box'>
+    <h4>🧠 自行訓練模型</h4>
+    上傳 dataset，自動訓練三模型並更新系統使用的模型。
+    </div>
+    """, unsafe_allow_html=True)
+
+st.write("---")
+st.info("請使用左側導覽選單選擇功能頁面。")
