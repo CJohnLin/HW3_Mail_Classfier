@@ -48,7 +48,7 @@ notebooks/train_models.ipynb
 ## 📘 Streamlit Demo
 請將雲端連結放在此：
 
-👉 Demo URL：
+👉 Demo URL：https://hw3mailclassfier-nnnsydv9vixcqc2hysyjvi.streamlit.app/
 
 ---
 
