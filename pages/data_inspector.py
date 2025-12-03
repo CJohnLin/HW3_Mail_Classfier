@@ -22,7 +22,7 @@ st.markdown("""
 
 st.markdown("<h1 class='page-title'>📁 資料集檢視</h1>", unsafe_allow_html=True)
 
-data_path = os.path.join("Chapter03","datasets","sms_spam_no_header.csv")
+data_path = os.path.join("dataset","sms_final.csv")
 
 if not os.path.exists(data_path):
     st.error("⚠️ 找不到資料集")
