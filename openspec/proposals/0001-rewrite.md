@@ -1,0 +1,1 @@
+Proposal: rewrite code and UI, keep functionality.
