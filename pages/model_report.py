@@ -7,89 +7,108 @@ from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.header("📊 模型效能報告")
+# ================================
+# 樣式（科技藍）
+# ================================
+st.markdown("""
+<style>
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1E88E5;
+}
+.card {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    margin-bottom: 22px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# ========== 載入模型與向量器 ==========
-MODEL = os.path.join('models','custom_logreg.joblib')
-VEC = os.path.join('models','custom_vectorizer.joblib')
-MAP = os.path.join('models','custom_label_map.json')
+st.markdown("<h1 class='page-title'>📊 模型效能報告</h1>", unsafe_allow_html=True)
+
+# ================================
+# 使用 custom 模型
+# ================================
+MODEL = "models/custom_logreg.joblib"
+VEC = "models/custom_vectorizer.joblib"
+MAP = "models/custom_label_map.json"
 
 try:
     model, vectorizer, label_map = load_resources(MODEL, VEC, MAP)
 except Exception as e:
-    st.error("❌ 模型載入失敗：" + str(e))
+    st.error(f"❌ 模型載入失敗：{str(e)}")
     st.stop()
 
+# ================================
+# 正確 dataset 路徑
+# ================================
+DATA_PATH = os.path.join("dataset", "sms_final.csv")
 
-# ========== 讀取資料 ==========
-data_path = os.path.join("Chapter03", "datasets", "sms_spam_no_header.csv")
-
-if not os.path.exists(data_path):
-    st.error("⚠️ 找不到資料集")
+if not os.path.exists(DATA_PATH):
+    st.error(f"⚠️ 找不到 dataset：{DATA_PATH}")
     st.stop()
 
-df = pd.read_csv(data_path, header=None, names=["label", "text"])
+df = pd.read_csv(DATA_PATH)
 
-
-# ========== Step1：標籤清理 ==========
+# ================================
+# 清理標籤
+# ================================
 df["label"] = df["label"].astype(str).str.strip().str.lower()
-
-# 僅保留 ham/spam
-df = df[df["label"].isin(["ham", "spam"])].copy()
+df = df[df["label"].isin(["ham", "spam"])]
 
 if df.empty:
     st.error("⚠️ 資料集中沒有可用的 ham/spam 標籤。")
     st.stop()
 
+# ================================
+# 清理 text
+# ================================
+df["text"] = df["text"].astype(str).str.strip()
+df = df[df["text"] != ""]
 
-# ========== Step2：清理 text ==========
-df["text"] = df["text"].astype(str).fillna("").str.strip()
-
-# 移除 text 空白行
-df = df[df["text"] != ""].copy()
-
-if df.empty:
-    st.error("⚠️ 所有訊息內容皆為空白，無法進行分析。")
-    st.stop()
-
-
-# ========== Step3：normalize（可能產生 ''） ==========
 df["clean"] = df["text"].apply(normalize_message)
-
-# 移除 normalize 後仍是空的列（這是造成你報錯的真正原因）
-df = df[df["clean"] != ""].copy()
+df = df[df["clean"] != ""]
 
 if df.empty:
-    st.error("⚠️ 文本預處理後無任何有效內容（多為符號/網址/空白）。")
+    st.error("⚠️ 資料中無有效文本內容。")
     st.stop()
 
-
-# ========== Step4：標籤編碼 ==========
 df["label_num"] = df["label"].map({"ham": 0, "spam": 1})
 
-
-# ========== Step5：向量轉換（此處不會再錯）==========
-try:
-    X = vectorizer.transform(df["clean"])
-except Exception as e:
-    st.error("❌ 向量化轉換失敗：" + str(e))
-    st.stop()
-
-
-# ========== Step6：模型預測 ==========
+# ================================
+# 特徵轉換
+# ================================
+X = vectorizer.transform(df["clean"])
 preds = model.predict(X)
 
-
-# ========== Step7：分類報告 ==========
+# ================================
+# 分類報告
+# ================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 st.subheader("📄 分類報告")
-st.text(classification_report(df["label_num"], preds, target_names=["HAM", "SPAM"]))
 
+report = classification_report(
+    df["label_num"], preds, 
+    target_names=["HAM", "SPAM"],
+    output_dict=True
+)
 
-# ========== Step8：混淆矩陣 ==========
+st.dataframe(pd.DataFrame(report).T)
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ================================
+# 混淆矩陣
+# ================================
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 st.subheader("🔵 混淆矩陣")
 
 cm = confusion_matrix(df["label_num"], preds)
 
 fig, ax = plt.subplots(figsize=(5, 4))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
+sns.heatmap(cm, annot=True, cmap="Blues", fmt="d", ax=ax)
 st.pyplot(fig)
+st.markdown("</div>", unsafe_allow_html=True)
