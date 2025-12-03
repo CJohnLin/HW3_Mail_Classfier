@@ -11,7 +11,7 @@ from src.sidebar import render_sidebar
 }
 /* animated gradient background for banners */
 .blue-gradient {
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  background: linear-gradient(90 deg, var(--accent), var(--accent2));
   background-size: 200% 200%;
   animation: gradientShift 6s ease infinite;
   padding: 18px;
