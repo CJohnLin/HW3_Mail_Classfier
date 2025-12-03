@@ -1,46 +1,112 @@
 import streamlit as st
 from src.sidebar import render_sidebar
-st.set_page_config(page_title="🏠 首頁", page_icon="🏠", layout="wide")
 
+st.set_page_config(
+    page_title="🏠 首頁",
+    page_icon="🏠",
+    layout="wide"
+)
+
+# ----------------------------------------------------
+# Fluent-style Safe CSS（100% 不會被 Python 誤判）
+# ----------------------------------------------------
+st.markdown("""
 <style>
-:root{
-  --primary:#0ea5e9; /* sky blue */
-  --muted:#6b7280;
-  --card:#ffffff;
-  --bg:#f7fbff;
+/* 主色調 */
+:root {
+    --primary: #0ea5e9;
+    --light-blue: #e0f2fe;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
 }
-body { background: var(--bg); }
-.fluent-hero { background: linear-gradient(90deg, rgba(14,165,233,0.12), rgba(124,58,237,0.06)); padding:14px; border-radius:10px; margin-bottom:12px; }
-.page-title { font-size:1.6rem; font-weight:700; color: #073b4c; margin:0; }
-.page-sub { color:var(--muted); margin:0; font-size:0.95rem; }
-.card { background: var(--card); padding:14px; border-radius:10px; box-shadow: 0 6px 18px rgba(2,6,23,0.04); margin-bottom:12px; }
-.btn-primary { background: var(--primary); color: white; padding:8px 12px; border-radius:8px; border:none; font-weight:600; }
-.small-muted { color: var(--muted); font-size:0.95rem; }
-</style>
 
+/* 標題區塊 */
+.hero {
+    background: #e0f2fe;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid #bae6fd;
+    margin-bottom: 20px;
+}
+
+/* 標題文字 */
+.hero-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.hero-sub {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+/* 卡片 */
+.card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+    margin-bottom: 14px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ----------------------------------------------------
+# Sidebar
+# ----------------------------------------------------
 render_sidebar()
 
+
+# ----------------------------------------------------
+# Hero 區塊（沒有 gradient → 極穩定）
+# ----------------------------------------------------
 st.markdown("""
-<div class="fluent-hero">
-  <div style="display:flex; gap:12px; align-items:center;">
-    <div style="width:56px; height:56px; border-radius:8px; background:linear-gradient(180deg, rgba(14,165,233,0.18), rgba(124,58,237,0.08)); display:flex; align-items:center; justify-content:center;">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 6L12 13L21 6" stroke="#063047" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div>
-      <h1 class="page-title">📨 垃圾簡訊偵測系統</h1>
-      <p class="page-sub small-muted">Fluent-style 簡潔版 • 支援訓練、偵測、比較、可視化</p>
-    </div>
-  </div>
+<div class="hero">
+  <h1 class="hero-title">📨 垃圾簡訊偵測系統</h1>
+  <p class="hero-sub">提供模型訓練、單筆偵測、資料探索、模型報告與比較</p>
 </div>
 """, unsafe_allow_html=True)
 
-st.subheader("快速開始")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown('<div class="card"><h4>🔍 單筆偵測</h4><p class="small-muted">即時判定訊息是否為垃圾。</p></div>', unsafe_allow_html=True)
-    st.markdown('<div class="card"><h4>🧹 資料探索</h4><p class="small-muted">檢視 dataset 分布與摘要。</p></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown('<div class="card"><h4>📈 模型報告</h4><p class="small-muted">查看混淆矩陣與指標。</p></div>', unsafe_allow_html=True)
-    st.markdown('<div class="card"><h4>🧠 訓練模型</h4><p class="small-muted">上傳 dataset 並訓練。</p></div>', unsafe_allow_html=True)
 
-st.info('請使用左側選單啟動功能。')
+# ----------------------------------------------------
+# 功能卡片
+# ----------------------------------------------------
+st.subheader("功能導覽 · 功能一覽")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+    <div class="card">
+        <h4>🔍 單筆偵測</h4>
+        使用訓練模型即時判斷訊息是否為垃圾簡訊。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card">
+        <h4>🧹 資料探索</h4>
+        查看資料集內容與統計分布。
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div class="card">
+        <h4>📈 模型報告</h4>
+        查看 Precision、Recall、F1-score 與混淆矩陣。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card">
+        <h4>🧠 訓練模型</h4>
+        上傳 dataset，自行訓練模型。
+    </div>
+    """, unsafe_allow_html=True)
+
+st.write("---")
+st.info("👈 請使用左側選單進入各項功能。")
