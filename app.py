@@ -1,82 +1,162 @@
-
 import streamlit as st
 from src.sidebar import render_sidebar
 
-<style>
-:root{
-  --accent:#3b82f6;
-  --accent2:#7c3aed;
-  --card-bg: rgba(255,255,255,0.85);
-  --glass: rgba(255,255,255,0.06);
-}
-/* animated gradient background for banners */
-.blue-gradient {
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  background-size: 200% 200%;
-  animation: gradientShift 6s ease infinite;
-  padding: 18px;
-  border-radius: 14px;
-  color: white;
-  box-shadow: 0 8px 30px rgba(59,130,246,0.18);
-}
-@keyframes gradientShift {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
-.page-header {
-  display:flex;
-  gap:18px;
-  align-items:center;
-}
-.page-title { font-size:1.6rem; font-weight:800; margin:0; }
-.page-sub { opacity:0.95; margin:0; }
-.feature-card {
-  background: var(--card-bg);
-  padding:16px;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,0.04);
-  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
-  margin-bottom:16px;
-}
-.btn-gradient{
-  background: linear-gradient(90deg,var(--accent),var(--accent2));
-  color:white; padding:10px 16px; border-radius:10px; border:none; font-weight:600;
-  box-shadow: 0 6px 18px rgba(59,130,246,0.12);
-}
-.small-muted{color:rgba(0,0,0,0.55); font-size:0.95rem}
-</style>
+st.set_page_config(
+    page_title="🏠 首頁",
+    page_icon="🏠",
+    layout="wide"
+)
 
-render_sidebar()
+# =============================
+# Blue-Gradient 進階 UI：正確可執行的 CSS
+# =============================
 st.markdown("""
-<div class="blue-gradient" style="margin-bottom:14px">
-  <div style="display:flex; align-items:center; gap:18px;">
+<style>
+/* ----- 全域變數 ----- */
+:root {
+    --grad1: #3b82f6;
+    --grad2: #7c3aed;
+    --card-bg: rgba(255, 255, 255, 0.85);
+}
 
-<svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="4" width="22" height="16" rx="2" fill="white" opacity="0.06"/>
-<path d="M3 6L12 13L21 6" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="2" y="5" width="20" height="14" rx="2" stroke="white" stroke-opacity="0.08"/>
-</svg>
+/* ----- 動態背景漸層 ----- */
+.blue-gradient {
+    background: linear-gradient(90deg, var(--grad1), var(--grad2));
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    padding: 18px;
+    border-radius: 14px;
+    color: white;
+    box-shadow: 0 8px 30px rgba(59,130,246,0.18);
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+}
+
+/* ----- 頁面 Header 樣式 ----- */
+.page-header {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+.page-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0;
+}
+.page-sub {
+    opacity: 0.95;
+    margin: 0;
+}
+
+/* ----- 卡片 ----- */
+.feature-card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+    margin-bottom: 16px;
+}
+
+/* ----- Gradient 按鈕 ----- */
+.btn-gradient {
+    background: linear-gradient(90deg, var(--grad1), var(--grad2));
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(59,130,246,0.12);
+}
+.btn-gradient:hover {
+    opacity: 0.92;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =============================
+# Sidebar
+# =============================
+render_sidebar()
+
+# =============================
+# Header 區塊（含 SVG 信封圖示）
+# =============================
+st.markdown("""
+<div class="blue-gradient">
+  <div class="page-header">
+    <svg width="68" height="68" viewBox="0 0 24 24" fill="none">
+      <rect x="1" y="4" width="22" height="16" rx="3"
+            fill="white" opacity="0.10"/>
+      <path d="M3 6L12 13L21 6"
+            stroke="white" stroke-width="1.4"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
 
     <div>
       <h1 class="page-title">📨 垃圾簡訊偵測系統</h1>
-      <p class="page-sub small-muted">AI 幫你分類垃圾簡訊 • 支援訓練、比較、即時偵測 • 展示版介面（進階）</p>
+      <p class="page-sub">支援模型訓練、即時偵測、資料探索、效能比較</p>
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("""<div style='display:flex; gap:18px; margin-bottom:12px'>
-<div style='flex:1' class='feature-card'>
-<h3>✨ 快速開始</h3>
-<p class='small-muted'>使用左側選單：🔍 單筆偵測、🧠 訓練模型、📊 模型比較 等等。</p>
-<button class='btn-gradient' onclick="window.location.href='#'">立即前往偵測</button>
-</div>
-<div style='flex:1' class='feature-card'>
-<h3>📌 資訊小卡</h3>
-<p class='small-muted'>自訓練模型會被儲存在 models/，資料請放 dataset/sms_final.csv</p>
-</div>
-</div>""", unsafe_allow_html=True)
+# =============================
+# 功能總覽（新版 UI 卡片）
+# =============================
+st.write("")
+st.subheader("✨ 系統功能快速導覽")
 
-st.write('---')
-st.info('請使用左側選單啟動各項功能。')
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+    <div class="feature-card">
+        <h4>🔍 單筆偵測</h4>
+        即時輸入文字，AI 幫你判斷是否為垃圾簡訊。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="feature-card">
+        <h4>🧹 資料探索</h4>
+        查看資料集的分布、統計、清洗後內容。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="feature-card">
+        <h4>🌥️ 文字雲</h4>
+        用視覺化方式觀察最常出現的字詞。
+    </div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div class="feature-card">
+        <h4>📈 模型報告</h4>
+        瀏覽模型的 Precision、Recall、F1-score 與混淆矩陣。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="feature-card">
+        <h4>📊 模型比較</h4>
+        比較 Logistic / NB / SVM 三種模型的效能差異。
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="feature-card">
+        <h4>🧠 訓練模型</h4>
+        上傳資料集，自行訓練 TF-IDF + ML 模型。
+    </div>
+    """, unsafe_allow_html=True)
+
+st.write("---")
+st.info("👈 請從左側選單選擇功能頁面。")
